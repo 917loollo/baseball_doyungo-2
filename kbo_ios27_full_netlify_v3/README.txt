@@ -1,11 +1,22 @@
-KBO Live iOS 27 Edition v3
+KBO iOS 27 Netlify 고정판
 
-- 하단 홈 / 경기 / 순위 / 기록 탭 전체 작동
-- 오늘 경기 실제 KBO 데이터
-- 경기 상세: 실시간 / 라인업 / 기록 / 스코어
-- 팀 순위 전체 보기 및 팀 카드
-- 기록 탭: 오늘 경기 타자·투수 기록 집계
-- KBO 공식 선수/팀 기록 링크
-- 10초 경기 자동 갱신, 60초 순위 갱신
+중요:
+이 ZIP은 index.html이 ZIP의 최상위에 있습니다.
+압축을 푼 뒤 'kbo_netlify_fixed' 폴더 자체를 Netlify에 배포하세요.
 
-Netlify 배포 후 사용하세요. index.html을 파일로 직접 열면 /api/kbo가 실행되지 않습니다.
+구조:
+index.html
+netlify.toml
+_redirects
+netlify/functions/kbo.js
+
+Netlify 배포:
+1. ZIP 압축 해제
+2. Netlify에서 Add new project → Deploy manually
+3. 압축 해제된 폴더를 통째로 업로드
+4. 배포된 *.netlify.app 주소로 접속
+5. Domain management에서 내 도메인을 연결
+
+주의:
+ZIP 파일 안의 바깥 폴더를 그대로 업로드하는 방식이 아니라,
+압축을 푼 뒤 index.html이 바로 보이는 폴더를 업로드해야 합니다.
