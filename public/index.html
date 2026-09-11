@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b4ea2">
+<title>KBO LIVE</title>
+<style>
+:root{
+  --blue:#0b4ea2;--blue2:#07356e;--bg:#f2f4f7;--card:#fff;--line:#e5e7eb;
+  --text:#111827;--muted:#667085;--red:#e53935;--green:#087443;--navy:#092b58;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif}
+button{font:inherit}
+a{text-decoration:none;color:inherit}
+.app{min-height:100vh}
+.header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(18px);border-bottom:1px solid #dfe3e8}
+.header-inner{max-width:1120px;margin:auto;padding:13px 16px 0}
+.brand-row{display:flex;align-items:center;justify-content:space-between;height:38px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:22px;letter-spacing:-.5px}
+.brand-mark{width:31px;height:31px;border-radius:9px;background:linear-gradient(145deg,#0b62c9,#082e63);display:grid;place-items:center;color:white;font-size:16px;box-shadow:0 4px 10px #0b4ea233}
+.live-pill{font-size:11px;font-weight:800;color:#0b4ea2;background:#eaf2ff;border-radius:999px;padding:7px 10px}
+.tabs{display:flex;margin-top:12px;gap:2px}
+.tab{border:0;background:transparent;padding:11px 17px;color:#667085;font-weight:800;cursor:pointer;border-bottom:3px solid transparent}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.container{max-width:1120px;margin:auto;padding:18px 16px 50px}
+.page-title{font-size:25px;font-weight:900;margin:6px 0 4px;letter-spacing:-.7px}
+.page-sub{font-size:13px;color:var(--muted);margin:0 0 17px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.refresh{border:1px solid #d9dee7;background:#fff;border-radius:10px;padding:8px 11px;font-weight:800;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:0 5px 22px #1018280b}
+.game-card{padding:0;overflow:hidden;cursor:pointer;transition:.16s}
+.game-card:hover{transform:translateY(-1px);box-shadow:0 9px 28px #10182816}
+.game-head{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid #eef0f3;font-size:12px;color:var(--muted)}
+.badge-live{background:#ef4444;color:#fff;border-radius:6px;padding:4px 7px;font-weight:900}
+.badge-end{background:#eef1f5;color:#596273;border-radius:6px;padding:4px 7px;font-weight:800}
+.badge-pre{background:#edf5ff;color:#0b4ea2;border-radius:6px;padding:4px 7px;font-weight:800}
+.game-main{padding:17px 16px 14px}
+.match{display:grid;grid-template-columns:1fr 120px 1fr;align-items:center;gap:12px;text-align:center}
+.team-side{min-width:0}
+.team-logo{width:46px;height:46px;margin:0 auto 7px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;box-shadow:inset 0 -3px 0 #00000018}
+.team-name{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team-score{font-size:31px;font-weight:950;line-height:1.05;margin-top:5px;letter-spacing:-1px}
+.center-status{font-size:12px;color:var(--muted);font-weight:800}
+.center-score{font-size:13px;color:#344054;margin-top:4px;font-weight:800}
+.game-meta{text-align:center;color:#7a8494;font-size:11px;margin-top:13px}
+.game-count{font-size:13px;font-weight:800;color:#475467}
+.empty,.error{padding:34px 16px;text-align:center;color:var(--muted)}
+.error{color:#b42318}
+.section-title{font-size:17px;font-weight:900;margin:22px 0 10px}
+.rank-wrap{overflow:auto}
+.rank{width:100%;border-collapse:collapse;min-width:580px}
+.rank th,.rank td{padding:12px 9px;border-bottom:1px solid #edf0f3;font-size:13px;text-align:center}
+.rank th{background:#f8fafc;color:#667085;font-size:12px}
+.rank th:nth-child(2),.rank td:nth-child(2){text-align:left}
+.rank tr:last-child td{border-bottom:0}
+.rank-team{font-weight:900}
+.detail-top{margin-bottom:12px}
+.back{border:0;background:transparent;color:#344054;font-weight:900;padding:5px 0 12px;cursor:pointer}
+.scoreboard{background:linear-gradient(155deg,#0b55ad,#062d62);color:#fff;border-radius:19px;padding:20px 16px;box-shadow:0 12px 28px #062d6240}
+.scoreboard .small{font-size:12px;color:#dbeafe;text-align:center;font-weight:800}
+.scoreboard .bigmatch{display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:12px;text-align:center;margin-top:12px}
+.scoreboard .team-name{font-size:18px}
+.scoreboard .team-score{font-size:43px}
+.scoreboard .dash{font-size:13px;color:#dbeafe;font-weight:900}
+.scoreboard .inning{margin-top:12px;text-align:center;font-size:12px;color:#dbeafe;font-weight:800}
+.detail-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,.85fr);gap:13px;margin-top:13px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden}
+.panel-title{padding:14px 15px;border-bottom:1px solid #edf0f3;font-size:15px;font-weight:900}
+.panel-body{padding:14px}
+.inning-scroll{overflow:auto}
+.inning-table{width:100%;border-collapse:collapse;min-width:540px}
+.inning-table th,.inning-table td{border-bottom:1px solid #edf0f3;padding:9px 7px;text-align:center;font-size:12px}
+.inning-table th{background:#f8fafc;color:#667085;font-weight:800}
+.inning-table th:first-child,.inning-table td:first-child{text-align:left;min-width:78px;font-weight:900}
+.inning-table .total{font-weight:950;background:#fbfcfe}
+.stat-table{width:100%;border-collapse:collapse}
+.stat-table td{padding:8px 4px;border-bottom:1px solid #f0f2f5;font-size:12px}
+.stat-table tr:last-child td{border-bottom:0}
+.stat-table td:first-child{color:#667085}
+.stat-table td:last-child{text-align:right;font-weight:900}
+.rheb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.rheb-box{background:#f7f9fc;border-radius:11px;padding:10px 5px;text-align:center}
+.rheb-box b{display:block;font-size:17px}.rheb-box span{display:block;color:#7a8494;font-size:10px;margin-top:2px}
+.diamond-area{display:grid;place-items:center;padding:13px 0 5px}
+.diamond{position:relative;width:170px;height:170px}
+.base{position:absolute;width:38px;height:38px;transform:rotate(45deg);background:#e9edf2;border:2px solid #b7c0cc;border-radius:4px}
+.base.on{background:#ffd66b;border-color:#e3a800;box-shadow:0 0 0 4px #ffd66b33}
+.base1{right:11px;top:66px}.base2{left:66px;top:11px}.base3{left:11px;top:66px}
+.homebase{position:absolute;left:66px;bottom:10px;width:38px;height:38px;transform:rotate(45deg);background:#fff;border:2px solid #b7c0cc;border-radius:4px}
+.diamond-label{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;color:#98a2b3;font-weight:800}
+.count-row{display:flex;justify-content:center;gap:18px;margin-top:5px;font-size:13px;font-weight:900}
+.count-row span{padding:5px 8px;background:#f7f8fa;border-radius:8px}
+.live-line{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #eef0f3;font-size:12px;line-height:1.45}
+.live-line:last-child{border-bottom:0}
+.play-no{min-width:28px;color:#98a2b3;font-size:10px;font-weight:900}
+.lineup-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lineup-team h4{margin:0 0 8px;font-size:13px}
+.player{display:grid;grid-template-columns:30px 1fr auto;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid #eef0f3;font-size:11px}
+.player:last-child{border-bottom:0}
+.player .num{color:#98a2b3;font-weight:900}.player b{font-size:12px}.player small{color:#667085}
+.pitcher-card{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pitcher{background:#f7f9fc;border-radius:11px;padding:11px}
+.pitcher .pname{font-weight:900;font-size:13px}.pitcher .pmeta{font-size:11px;color:#667085;margin-top:4px;line-height:1.5}
+.tabs-detail{display:flex;gap:2px;overflow:auto;border-bottom:1px solid #edf0f3}
+.dtab{border:0;background:#fff;padding:11px 13px;font-size:12px;font-weight:900;color:#667085;white-space:nowrap;cursor:pointer}
+.dtab.active{color:#0b4ea2;border-bottom:2px solid #0b4ea2}
+.loading{padding:35px;text-align:center;color:#667085}
+.footer{max-width:1120px;margin:auto;padding:15px 16px 35px;color:#98a2b3;font-size:11px}
+@media(max-width:760px){
+ .container{padding:14px 11px 40px}.header-inner{padding-left:11px;padding-right:11px}
+ .page-title{font-size:22px}.match{grid-template-columns:1fr 82px 1fr}
+ .team-logo{width:42px;height:42px}.team-name{font-size:14px}.team-score{font-size:27px}
+ .detail-grid{grid-template-columns:1fr}.scoreboard .bigmatch{grid-template-columns:1fr 100px 1fr}.scoreboard .team-score{font-size:36px}
+ .lineup-grid{grid-template-columns:1fr}.pitcher-card{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+ <div class="header-inner">
+  <div class="brand-row">
+   <div class="brand"><span class="brand-mark">⚾</span><span>KBO LIVE</span></div>
+   <span class="live-pill">● LIVE DATA</span>
+  </div>
+  <nav class="tabs">
+   <button id="tabGames" class="tab active">오늘 경기</button>
+   <button id="tabRank" class="tab">순위</button>
+  </nav>
+ </div>
+</header>
+
+<main class="container">
+ <section id="gamesPage">
+  <div class="toolbar">
+   <div><h1 class="page-title">오늘의 KBO</h1><p class="page-sub" id="todayLabel">불러오는 중…</p></div>
+   <button class="refresh" id="refreshBtn">↻ 새로고침</button>
+  </div>
+  <div id="games"></div>
+ </section>
+
+ <section id="rankPage" hidden>
+  <h1 class="page-title">KBO 순위</h1>
+  <p class="page-sub">2026 시즌 · 승률 기준</p>
+  <div class="card rank-wrap"><table class="rank">
+   <thead><tr><th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>무</th><th>게임차</th><th>승률</th></tr></thead>
+   <tbody id="rankBody"><tr><td colspan="8" class="empty">불러오는 중…</td></tr></tbody>
+  </table></div>
+ </section>
+
+ <section id="detailPage" hidden></section>
+</main>
+<footer class="footer">KBO LIVE · 데이터는 네이버 스포츠 공개 웹 API를 통해 표시됩니다. 비공식 API이므로 제공 방식이 변경될 수 있습니다.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const val = (o,...keys) => { for(const k of keys){ if(o && o[k]!==undefined && o[k]!==null && o[k]!=='') return o[k]; } return null; };
+const arr = x => Array.isArray(x) ? x : (x && typeof x==='object' ? Object.values(x) : []);
+const api = async path => {
+ const r = await fetch('/.netlify/functions/kbo?path='+encodeURIComponent(path), {cache:'no-store'});
+ const text = await r.text();
+ let j; try{j=JSON.parse(text)}catch{throw new Error('서버 응답이 JSON이 아닙니다.')}
+ if(!r.ok) throw new Error('API '+r.status);
+ return j?.result ?? j;
+};
+const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const teamColors = {
+ 'LG':'#C60C30','LG 트윈스':'#C60C30','두산':'#131230','두산 베어스':'#131230',
+ '삼성':'#074CA1','삼성 라이온즈':'#074CA1','SSG':'#CE0E2D','SSG 랜더스':'#CE0E2D',
+ 'KT':'#000000','KT 위즈':'#000000','한화':'#FF6600','한화 이글스':'#FF6600',
+ '롯데':'#041E42','롯데 자이언츠':'#041E42','KIA':'#EA0029','KIA 타이거즈':'#EA0029',
+ 'NC':'#315288','NC 다이노스':'#315288','키움':'#570514','키움 히어로즈':'#570514'
+};
+function teamShort(n){ const s=String(n||'').trim(); return s.replace(/ 트윈스| 베어스| 라이온즈| 랜더스| 위즈| 이글스| 자이언츠| 타이거즈| 다이노스| 히어로즈/g,''); }
+function logo(n){ const s=teamShort(n); const bg=teamColors[n]||teamColors[s]||'#667085'; return `<div class="team-logo" style="background:${bg}">${esc(s.slice(0,3))}</div>`; }
+function score(g,side){ return val(g,side+'TeamScore',side+'Score',side+'ScoreValue',side+'TeamResultScore') ?? '-'; }
+function statusInfo(g){
+ const raw=String(val(g,'statusCode','status','gameStatus')||'').toUpperCase();
+ if(raw.includes('RESULT')||raw.includes('END')||raw.includes('FINAL')||raw.includes('FINISH')) return {kind:'end',label:'경기 종료'};
+ if(raw.includes('START')||raw.includes('LIVE')||raw.includes('ING')) return {kind:'live',label:'LIVE'};
+ return {kind:'pre',label:'경기 예정'};
+}
+function validGame(g){
+ const away=String(val(g,'awayTeamName','awayName')||'').trim();
+ const home=String(val(g,'homeTeamName','homeName')||'').trim();
+ return g?.gameId && away && home && away!=='-' && home!=='-' && val(g,'categoryId')!=='football';
+}
+function uniqueGames(list){
+ const m=new Map();
+ for(const g of list){ if(validGame(g)) m.set(String(g.gameId),g); }
+ return [...m.values()].sort((a,b)=>String(val(a,'gameDateTime','startTime')||'').localeCompare(String(val(b,'gameDateTime','startTime')||'')));
+}
+function inningText(relay,g){
+ const raw=val(relay,'currentInning','inn') ?? val(g,'currentInning');
+ if(raw===null) return '';
+ const half=String(val(relay,'homeOrAway','inningHalf')||'');
+ return half==='0' ? `${raw}회초` : half==='1' ? `${raw}회말` : `${raw}회`;
+}
+function rheb(g,relay,side){
+ const prefix=side==='away'?'away':'home';
+ const cs=relay?.currentGameState||{};
+ return {
+  r: val(g,prefix+'TeamScore',prefix+'Score') ?? val(cs,prefix+'Score'),
+  h: val(g,prefix+'TeamRheb',prefix+'Hit',prefix+'Hits') ?? val(cs,prefix+'Hit',prefix+'Hits'),
+  e: val(g,prefix+'Error',prefix+'Errors') ?? val(cs,prefix+'Error',prefix+'Errors'),
+  b: val(g,prefix+'BallFour',prefix+'Walks',prefix+'BB') ?? val(cs,prefix+'BallFour',prefix+'Walks',prefix+'BB')
+ };
+}
+function numberOrDash(x){ return x===null||x===undefined||x===''?'-':x; }
+
+async function loadGames(){
+ const d=today();
+ $('#todayLabel').textContent = d.replaceAll('-','.')+' · 5초마다 자동 갱신';
+ try{
+   const r=await api(`/schedule/games?upperCategoryId=kbaseball&fromDate=${d}&toDate=${d}`);
+   const games=uniqueGames(arr(r?.games||r?.scheduleGames||r));
+   if(!games.length){ $('#games').innerHTML='<div class="card empty">오늘 등록된 KBO 경기가 없습니다.</div>'; return; }
+   $('#games').innerHTML = `<div class="game-count" style="margin:0 0 10px">${games.length}경기</div>` + games.map(renderGame).join('');
+ }catch(e){
+   $('#games').innerHTML=`<div class="card error">경기 데이터를 불러오지 못했습니다.<br><small>${esc(e.message)}</small></div>`;
+ }
+}
+function renderGame(g){
+ const s=statusInfo(g), away=val(g,'awayTeamName','awayName'), home=val(g,'homeTeamName','homeName');
+ const a=score(g,'away'), h=score(g,'home');
+ const time=val(g,'gameDateTime','startTime','gameTime')||'';
+ const stadium=val(g,'stadium','stadiumName')||'';
+ const inning=val(g,'currentInning')?`${val(g,'currentInning')}회`: '';
+ return `<article class="card game-card" onclick="openDetail('${esc(g.gameId)}')">
+   <div class="game-head"><span>${esc(time)}</span><span class="${s.kind==='live'?'badge-live':s.kind==='end'?'badge-end':'badge-pre'}">${s.kind==='live'?'● ':''}${s.label}</span></div>
+   <div class="game-main"><div class="match">
+    <div class="team-side">${logo(away)}<div class="team-name">${esc(away)}</div><div class="team-score">${esc(a)}</div></div>
+    <div><div class="center-status">${esc(inning||'')}</div><div class="center-score">${s.kind==='pre'?'VS':s.kind==='end'?'종료':'경기 중'}</div></div>
+    <div class="team-side">${logo(home)}<div class="team-name">${esc(home)}</div><div class="team-score">${esc(h)}</div></div>
+   </div><div class="game-meta">${esc(stadium)}</div></div>
+ </article>`;
+}
+
+async function loadStandings(){
+ try{
+   const r=await api('/statistics/categories/kbo/seasons/2026/teams');
+   let a=r?.seasonTeamStats||r?.teams||r?.teamStats||r?.data||r;
+   a=arr(a);
+   $('#rankBody').innerHTML=a.length ? a.map((x,i)=>`<tr>
+    <td><b>${esc(numberOrDash(val(x,'ranking','rank','rankNo')??i+1))}</b></td>
+    <td class="rank-team">${esc(val(x,'teamName','name')||'-')}</td>
+    <td>${esc(numberOrDash(val(x,'gameCount','games','game')))}</td>
+    <td>${esc(numberOrDash(val(x,'winGameCount','wins','winCount','win')))}</td>
+    <td>${esc(numberOrDash(val(x,'loseGameCount','losses','loseCount','loss')))}</td>
+    <td>${esc(numberOrDash(val(x,'drawnGameCount','draws','drawCount','draw')))}</td>
+    <td>${esc(numberOrDash(val(x,'gameBehind','gamesBehind','gameDifference')))}</td>
+    <td>${esc(numberOrDash(val(x,'wra','winRate','winningRate')))}</td>
+   </tr>`).join('') : '<tr><td colspan="8" class="empty">순위 데이터가 없습니다.</td></tr>';
+ }catch(e){
+   $('#rankBody').innerHTML=`<tr><td colspan="8" class="error">순위 데이터를 불러오지 못했습니다.<br><small>${esc(e.message)}</small></td></tr>`;
+ }
+}
+function normalizeInningScores(inn, side){
+ if(!inn) return [];
+ let x=inn;
+ if(x[side]!==undefined) x=x[side];
+ if(x && x[side+'Score']!==undefined) x=x[side+'Score'];
+ if(Array.isArray(x)) return x.map(v=>typeof v==='object' ? val(v,'score','value','run','r') : v);
+ if(x && typeof x==='object'){
+   const keys=Object.keys(x).sort((a,b)=>Number(a)-Number(b));
+   return keys.map(k=>typeof x[k]==='object'?val(x[k],'score','value','run','r'):x[k]);
+ }
+ return [];
+}
+function inningTable(relay,g){
+ const inn=val(relay,'inningScore','inningScores');
+ const away=normalizeInningScores(inn,'away'), home=normalizeInningScores(inn,'home');
+ const n=Math.max(away.length,home.length,9);
+ const a=rheb(g,relay,'away'), h=rheb(g,relay,'home');
+ let cells='<th>팀</th>'; for(let i=1;i<=n;i++) cells+=`<th>${i}</th>`; cells+='<th class="total">R</th><th class="total">H</th><th class="total">E</th>';
+ const row=(name,vals,st)=>`<tr><td>${esc(name)}</td>${Array.from({length:n},(_,i)=>`<td>${esc(numberOrDash(vals[i]))}</td>`).join('')}<td class="total">${esc(numberOrDash(st.r))}</td><td class="total">${esc(numberOrDash(st.h))}</td><td class="total">${esc(numberOrDash(st.e))}</td></tr>`;
+ return `<div class="inning-scroll"><table class="inning-table"><thead><tr>${cells}</tr></thead><tbody>${row(val(g,'awayTeamName'),away,a)}${row(val(g,'homeTeamName'),home,h)}</tbody></table></div>`;
+}
+function playerName(x){return val(x,'name','playerName','batterName','pitcherName')||'-';}
+function findPerson(list,id){ if(id===null||id===undefined) return null; return arr(list).find(x=>String(val(x,'playerId','id','batterId','pitcherId','code'))===String(id)) || null; }
+function currentInfo(relay,g){
+ const cs=relay?.currentGameState||{};
+ const awayBat=String(val(relay,'homeOrAway')||'')==='0';
+ const awayEntry=val(relay,'awayEntry')||{}, homeEntry=val(relay,'homeEntry')||{};
+ const awayLine=val(relay,'awayLineup')||{}, homeLine=val(relay,'homeLineup')||{};
+ const awayBatters=val(awayLine,'batter','batters')||val(awayEntry,'batter','batters')||[];
+ const homeBatters=val(homeLine,'batter','batters')||val(homeEntry,'batter','batters')||[];
+ const batter=findPerson(awayBat?awayBatters:homeBatters,val(cs,'batter','batterId','currentBatter'));
+ const pitcherList=awayBat?(val(homeLine,'pitcher','pitchers')||val(homeEntry,'pitcher','pitchers')||[]):(val(awayLine,'pitcher','pitchers')||val(awayEntry,'pitcher','pitchers')||[]);
+ const pitcher=findPerson(pitcherList,val(cs,'pitcher','pitcherId','currentPitcher'));
+ return {cs,awayBat,batter,pitcher,awayBatters,homeBatters,awayLine,homeLine};
+}
+function pitcherCard(p,label){
+ if(!p) return `<div class="pitcher"><div class="pname">${label}</div><div class="pmeta">현재 투수 정보가 없습니다.</div></div>`;
+ return `<div class="pitcher"><div class="pname">${esc(playerName(p))}</div><div class="pmeta">오늘 ERA ${esc(numberOrDash(val(p,'todayEra','era')))} · 시즌 ERA ${esc(numberOrDash(val(p,'seasonEra')))}<br>이닝 ${esc(numberOrDash(val(p,'inn','innings')))} · 탈삼진 ${esc(numberOrDash(val(p,'kk','strikeOut','strikeouts')))} · 볼넷 ${esc(numberOrDash(val(p,'bb','walks')))} · 피안타 ${esc(numberOrDash(val(p,'hit','hits')))}</div></div>`;
+}
+function lineupHtml(list){
+ const a=arr(list);
+ if(!a.length) return '<div class="empty">라인업 데이터가 없습니다.</div>';
+ return a.slice(0,12).map((p,i)=>`<div class="player"><span class="num">${esc(val(p,'batOrder','order','no')??i+1)}</span><b>${esc(playerName(p))}</b><small>${esc(val(p,'posName','position','pos')||'')} ${val(p,'ab')!==null?`· ${esc(p.ab)}타수`:''} ${val(p,'hit')!==null?`· ${esc(p.hit)}안타`:''}</small></div>`).join('');
+}
+function playsHtml(relay){
+ const rows=arr(val(relay,'textRelays','relays'));
+ const out=[];
+ for(const r of rows){
+   const opts=arr(val(r,'textOptions','options','texts'));
+   const text=opts.map(o=>val(o,'text','textValue','content')).filter(Boolean).join(' ');
+   if(text) out.push({no:val(r,'no','seq','sequence'),text});
+ }
+ out.sort((a,b)=>Number(b.no||0)-Number(a.no||0));
+ const unique=[]; const seen=new Set();
+ for(const x of out){ if(!seen.has(x.text)){seen.add(x.text);unique.push(x);} if(unique.length>=24)break; }
+ return unique.length ? unique.map(x=>`<div class="live-line"><span class="play-no">${esc(x.no??'')}</span><span>${esc(x.text)}</span></div>`).join('') : '<div class="empty">중계 기록이 없습니다.</div>';
+}
+function basesHtml(cs){
+ const b1=String(val(cs,'base1')||'0')!=='0'&&String(val(cs,'base1')||'')!=='';
+ const b2=String(val(cs,'base2')||'0')!=='0'&&String(val(cs,'base2')||'')!=='';
+ const b3=String(val(cs,'base3')||'0')!=='0'&&String(val(cs,'base3')||'')!=='';
+ return `<div class="diamond-area"><div class="diamond"><div class="base base1 ${b1?'on':''}"></div><div class="base base2 ${b2?'on':''}"></div><div class="base base3 ${b3?'on':''}"></div><div class="homebase"></div><div class="diamond-label">BASE</div></div></div>`;
+}
+function winProb(relay){
+ const opt=val(relay,'lastValidMetricOption')||arr(val(relay,'metricOption')).at(-1);
+ if(!opt) return '';
+ const vals=Object.entries(opt).filter(([k,v])=>/home|away|prob|percent|win/i.test(k)&&typeof v!=='object').map(([k,v])=>`${k}: ${v}`).slice(0,4);
+ return vals.length?`<div class="panel"><div class="panel-title">승리 확률</div><div class="panel-body"><div class="stat-table">${vals.map(x=>`<div style="padding:7px 0;font-size:12px">${esc(x)}</div>`).join('')}</div></div></div>`:'';
+}
+
+let currentId=null, refreshTimer=null;
+async function openDetail(id){
+ currentId=id; $('#gamesPage').hidden=true; $('#rankPage').hidden=true; $('#detailPage').hidden=false;
+ $('#tabGames').classList.add('active'); $('#tabRank').classList.remove('active');
+ $('#detailPage').innerHTML='<div class="loading">경기 상세 데이터를 불러오는 중…</div>';
+ try{
+   const [relay,g0]=await Promise.all([api(`/schedule/games/${encodeURIComponent(id)}/relay`),api(`/schedule/games/${encodeURIComponent(id)}`)]);
+   const g=g0?.game||g0?.scheduleGame||g0;
+   const cs=relay?.currentGameState||{};
+   const aScore=val(cs,'awayScore') ?? score(g,'away');
+   const hScore=val(cs,'homeScore') ?? score(g,'home');
+   const away=val(g,'awayTeamName','awayName')||'원정';
+   const home=val(g,'homeTeamName','homeName')||'홈';
+   const si=statusInfo(g);
+   const ci=currentInfo(relay,g);
+   const a=rheb(g,relay,'away'), h=rheb(g,relay,'home');
+   const currentBatter=ci.batter?playerName(ci.batter):'-';
+   const currentPitcher=ci.pitcher?playerName(ci.pitcher):'-';
+   const ball=numberOrDash(val(cs,'ball')), strike=numberOrDash(val(cs,'strike')), out=numberOrDash(val(cs,'out'));
+   const inning=inningText(relay,g);
+   $('#detailPage').innerHTML=`
+    <div class="detail-top"><button class="back" onclick="closeDetail()">← 오늘 경기로 돌아가기</button></div>
+    <div class="scoreboard">
+      <div class="small">${esc(val(g,'gameDateTime','startTime','gameTime')||'')} · ${esc(val(g,'stadium','stadiumName')||'')}</div>
+      <div class="bigmatch">
+       <div><div class="team-name">${logo(away)}${esc(away)}</div><div class="team-score">${esc(aScore)}</div></div>
+       <div><div class="dash">${esc(si.label)}</div><div class="dash">${esc(inning)}</div></div>
+       <div><div class="team-name">${logo(home)}${esc(home)}</div><div class="team-score">${esc(hScore)}</div></div>
+      </div>
+      <div class="inning">${esc(away)} ${esc(a.r??'-')}-${esc(h.r??'-')} ${esc(home)} · 실시간 데이터 연결됨</div>
+    </div>
+    <div class="detail-grid">
+      <div>
+       <div class="panel"><div class="panel-title">이닝별 스코어</div><div class="panel-body">${inningTable(relay,g)}</div></div>
+       <div class="panel" style="margin-top:13px"><div class="panel-title">현재 타석</div><div class="panel-body">
+        <div class="pitcher-card"><div class="pitcher"><div class="pname">타자 · ${esc(currentBatter)}</div><div class="pmeta">${ci.awayBat?esc(away):esc(home)} 공격 · 볼 ${esc(ball)} · 스트라이크 ${esc(strike)} · 아웃 ${esc(out)}</div></div><div class="pitcher"><div class="pname">투수 · ${esc(currentPitcher)}</div><div class="pmeta">현재 타석 기준 투수</div></div></div>
+        ${basesHtml(cs)}
+        <div class="count-row"><span>B ${esc(ball)}</span><span>S ${esc(strike)}</span><span>O ${esc(out)}</span></div>
+       </div></div>
+       <div class="panel" style="margin-top:13px"><div class="panel-title">라인업</div><div class="panel-body"><div class="lineup-grid">
+        <div class="lineup-team"><h4>${esc(away)}</h4>${lineupHtml(ci.awayBatters)}</div>
+        <div class="lineup-team"><h4>${esc(home)}</h4>${lineupHtml(ci.homeBatters)}</div>
+       </div></div></div>
+      </div>
+      <div>
+       <div class="panel"><div class="panel-title">R / H / E / B</div><div class="panel-body"><div class="lineup-grid">
+        <div><b style="font-size:12px">${esc(away)}</b><div class="rheb"><div class="rheb-box"><b>${esc(numberOrDash(a.r))}</b><span>R</span></div><div class="rheb-box"><b>${esc(numberOrDash(a.h))}</b><span>H</span></div><div class="rheb-box"><b>${esc(numberOrDash(a.e))}</b><span>E</span></div><div class="rheb-box"><b>${esc(numberOrDash(a.b))}</b><span>B</span></div></div></div>
+        <div><b style="font-size:12px">${esc(home)}</b><div class="rheb"><div class="rheb-box"><b>${esc(numberOrDash(h.r))}</b><span>R</span></div><div class="rheb-box"><b>${esc(numberOrDash(h.h))}</b><span>H</span></div><div class="rheb-box"><b>${esc(numberOrDash(h.e))}</b><span>E</span></div><div class="rheb-box"><b>${esc(numberOrDash(h.b))}</b><span>B</span></div></div></div>
+       </div></div></div>
+       <div class="panel" style="margin-top:13px"><div class="panel-title">투수</div><div class="panel-body"><div class="pitcher-card">${pitcherCard(findPerson(val(ci.awayLine,'pitcher','pitchers')||[],val(cs,'pitcher')),'원정 투수')}${pitcherCard(findPerson(val(ci.homeLine,'pitcher','pitchers')||[],val(cs,'pitcher')),'홈 투수')}</div></div></div>
+       <div class="panel" style="margin-top:13px"><div class="panel-title">실시간 중계</div><div class="panel-body">${playsHtml(relay)}</div></div>
+       ${winProb(relay)}
+      </div>
+    </div>`;
+   // Refresh only the currently opened game, without rebuilding the whole page.
+   clearTimeout(refreshTimer);
+   if(si.kind==='live') refreshTimer=setTimeout(()=>openDetail(id),5000);
+ }catch(e){
+   $('#detailPage').innerHTML=`<div class="card error" style="padding:30px">상세 데이터를 불러오지 못했습니다.<br><small>${esc(e.message)}</small><br><button class="refresh" style="margin-top:12px" onclick="openDetail('${esc(id)}')">다시 시도</button></div>`;
+ }
+}
+function closeDetail(){
+ clearTimeout(refreshTimer); currentId=null; $('#detailPage').hidden=true; $('#gamesPage').hidden=false; $('#tabGames').classList.add('active'); $('#tabRank').classList.remove('active'); loadGames();
+}
+$('#tabGames').onclick=()=>{closeDetail();};
+$('#tabRank').onclick=()=>{clearTimeout(refreshTimer);$('#gamesPage').hidden=true;$('#detailPage').hidden=true;$('#rankPage').hidden=false;$('#tabGames').classList.remove('active');$('#tabRank').classList.add('active');loadStandings();};
+$('#refreshBtn').onclick=loadGames;
+loadGames();
+setInterval(()=>{if(!currentId&&!$('#rankPage').hidden) return; if(!currentId&&!$('#gamesPage').hidden) loadGames();},5000);
+</script>
+</body>
+</html>
